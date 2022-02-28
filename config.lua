@@ -9,4 +9,6 @@ Config["Locations"] = {
     },
 }
 
+Config["OnlyPolice"] = false
+
 Config["Text"] = '<b>[E]</b> Open Menu' -- For cd_drawtextui
