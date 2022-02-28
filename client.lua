@@ -1,3 +1,4 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 local carSpawned = false
 local newVeh = nil
 local inLightbarMenu = false
@@ -18,11 +19,21 @@ local vehPlateBoolSavedData = nil
 local isPlateCar = false
 local isAirhornKeyPressed = false
 local deleteVehicleLightbars = {}
+local PlayerData = {}
+
+function isPolice()
+    PlayerData = QBCore.Functions.GetPlayerData()
+    if not Config["OnlyPolice"] then return true end
+    if PlayerData.job and PlayerData.job.name == "police" then
+      return true
+    end
+    return false
+end
 
 CreateThread(function()
     local alreadyEnteredZone = false
     while true do
-        wait = 5
+        local wait = 1000
         local ped = PlayerPedId()
         local inZone = false
         local coords = GetEntityCoords(ped)
@@ -31,20 +42,22 @@ CreateThread(function()
             if dist <= v["radius"] then
                 wait = 5
                 inZone = true
-                if IsControlJustReleased(0, 38) then
+                if IsControlJustReleased(0, 38) and isPolice() then
                     TriggerEvent("lightBar")
                 end
-            else
-                wait = 1000
             end
         end
         if inZone and not alreadyEnteredZone then
             alreadyEnteredZone = true
-            TriggerEvent('cd_drawtextui:ShowUI', 'show', Config["Text"])
+            if PlayerData.job and isPolice() then
+                TriggerEvent('cd_drawtextui:ShowUI', 'show', Config["Text"])
+            end
         end
         if not inZone and alreadyEnteredZone then
             alreadyEnteredZone = false
-            TriggerEvent('cd_drawtextui:HideUI')
+            if PlayerData.job and isPolice() then
+                TriggerEvent('cd_drawtextui:HideUI')
+            end
         end
         Wait(wait)
     end
@@ -104,8 +117,6 @@ function printControlsText()
     DrawText(0.25, 0.93)
 end
   
-
-
 function toggleLights()
     local player = PlayerPedId()
     TriggerServerEvent("toggleLights", GetVehicleNumberPlateText(GetVehiclePedIsIn(player, false)))
@@ -409,7 +420,7 @@ RegisterNetEvent("deleteLightbarVehicle", function(data)
 end)
 
 RegisterNetEvent("lightBar", function()
-    if IsPedInAnyVehicle(PlayerPedId(), false) then
+    if IsPedInAnyVehicle(PlayerPedId(), false) and isPolice() then
         exports['qb-menu']:openMenu({
             {
                 header = "Lightbar",
@@ -468,6 +479,7 @@ RegisterNetEvent("lightBar", function()
             },
         })
     else
+        if not isPolice() then TriggerEvent("QBCore:Notify", "Not police", "error") return end
         TriggerEvent("QBCore:Notify", "No vehicle", "error")
     end
 end)
