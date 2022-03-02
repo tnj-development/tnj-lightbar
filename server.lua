@@ -1,6 +1,15 @@
 local lightbarCars = {}
 local lightbarCars2 = {}
 
+RegisterNetEvent('attachLightbar', function()
+	TriggerClientEvent('attachLights', source)
+end)
+
+RegisterNetEvent('moveLightbar', function()
+	TriggerClientEvent('moveLights', source)
+end)
+
+
 RegisterNetEvent('addLightbar', function(hostVehPlate, lightbarNetworkID, hvp)
 	local source = source
 	for k,v in pairs(lightbarCars) do 

@@ -192,6 +192,15 @@ function spawnLightbar(lightbarModel)
     end)
 end
 
+RegisterNetEvent("attachLights", function()
+    local player = PlayerPedId()
+    AttachEntityToEntity(newVeh, GetVehiclePedIsIn(player, false), 0, 0, 0, 0, 0.0, 0.0, 0.0, true, true, true, true, 0, true)
+end)
+
+RegisterNetEvent("moveLights", function()
+    moveObj(newVeh)
+end)
+
 function lightMenu(lightbarModel)
     if not inLightbarMenu then
         inLightbarMenu = true
@@ -199,10 +208,12 @@ function lightMenu(lightbarModel)
         spawnLightbar(lightbarModel)
         controlsDisabled = true
         disableControls()
-        AttachEntityToEntity(newVeh, GetVehiclePedIsIn(player, false), 0, 0, 0, 0, 0.0, 0.0, 0.0, true, true, true, true, 0, true)
+        TriggerServerEvent("attachLightbar")
+        --AttachEntityToEntity(newVeh, GetVehiclePedIsIn(player, false), 0, 0, 0, 0, 0.0, 0.0, 0.0, true, true, true, true, 0, true)
             while true do
               Wait(3)
-              moveObj(newVeh)
+              TriggerServerEvent("moveLightbar")
+              --moveObj(newVeh)
               if (IsControlJustReleased(1, 22)) then -- attatch obj and close
                   TriggerServerEvent("addLightbar", GetVehicleNumberPlateText(GetVehiclePedIsIn(player, false)), VehToNet(newVeh), GetVehiclePedIsIn(player, false))
                   inLightbarMenu = false
